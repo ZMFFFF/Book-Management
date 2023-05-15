@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+</head>
+
+<body>
+    <h1>登录</h1>
+    用户账号
+    <input type="text" name="username" id="username">
+    <br>
+    用户密码
+    <input type="password" name="password" id="pas1"><br>
+    <button id="btn">登录</button>
+</body>
+<script>
+    btn.onclick = function () {
+        fetch('/login', {
+            // 请求方式
+            method: 'post',
+            // 请求头
+            headers: { 'Content-type': 'application/x-www-form-urlencoded' },
+            // 请求内容
+            body: `username=${username.value}&password=${pas1.value}`
+        }).then(data => {
+            // 响应头信息
+            return data.json()
+            // 上方函数执行完毕之后 执行的函数
+        }).then(list => {  // list接收上方所抛出json内容
+            console.log(list);
+
+            if (list == '登陆成功') {
+                location.href = 'http://localhost:8080/';
+            } else {
+                alert(list)
+            }
+        })
+    }
+</script>
+
+</html>

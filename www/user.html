@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>user</title>
+    <style>
+        #user {
+            position: absolute;
+            right: 25px;
+            font-size: 30px;
+            color: red;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        #tuicu {
+            position: absolute;
+            top: 70px;
+            right: 40px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #box {
+            display: inline-block;
+        }
+
+        #app {
+            margin-top: 20px;
+        }
+
+        .content {
+            height: 295px;
+            display: flex;
+            display: inline-block;
+            margin-bottom: 5px;
+
+            margin: 0 15px 30px 25px;
+            box-shadow: 0 0 4px 2px #999;
+            overflow: hidden;
+        }
+
+        .content div {
+            padding: 0 5px;
+        }
+
+        .del {
+            color: red;
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            left: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="user"></div>
+    <div id="tuicu">退出登录</div>
+    <h1>添加书籍</h1>
+    书名： <input type="text" name="bookname" id="bookname"><br>
+    简介： <input type="text" name="bookjianjie" id="bookjianjie"><br>
+    封面： <input type="file" id="bookcover" name="MyFile">
+    <br>
+    <br>
+
+    <div id="box"></div>
+    <button id="btn">添加</button>
+
+    <div id="user_content">
+        <h1>我的作品</h1>
+        <div id="app"></div>
+    </div>
+
+</body>
+<script>
+    function Fun() {
+        fetch('/user').then(res => res.json()).then(data => {
+            // console.log(data);
+            user.innerText = data;
+        })
+
+        app.innerHTML = '';
+        setTimeout(() => {
+            if (user.innerText !== '您还没有登录') {
+                tuicu.style.display = 'block';
+                // console.log(user.innerHTML);
+                fetch(`/userdata?zuoze=${user.innerText}`).then(res => res.json()).then(data => {
+                    console.log(data);
+                    // console.log(data);
+                    for (var i = 0; i < data.length; i++) {
+                        app.innerHTML += `
+                        <div class="content" data-id=${data[i].Id}>
+                <img src=${data[i].bookcover} alt="" class="bookcover">
+                <div>
+                    <div class="bookname">${data[i].bookname}</div>
+                    <div class="bookjianjie">${data[i].bookjianjie}</div>
+                    <div class="bookzuoze">${data[i].bookzuoze}</div>
+                    </div>
+                    <div class="del">删除</div>
+                    </div>`;
+                    }
+                })
+            } else {
+                tuicu.style.display = 'none';
+            }
+        }, 100)
+
+        setTimeout(() => {
+            var dels = document.querySelectorAll('.del');
+
+            for (var i = 0; i < dels.length; i++) {
+                dels[i].onclick = function () {
+                    console.log(this.parentElement.dataset.id);
+                    fetch(`/delete?id=${this.parentElement.dataset.id}`).then(res => res.json()).then(data => {
+                        console.log(data);
+                    })
+                    this.parentElement.remove();
+                }
+            }
+        }, 500)
+    }
+    Fun();
+
+
+
+
+
+
+    bookcover.onchange = function () {
+        box.innerHTML = '';
+        console.log(this.files)
+
+        var src = URL.createObjectURL(this.files[0]);
+        console.log(src);
+        var img = document.createElement('img');
+        img.src = src;
+        box.appendChild(img);
+    }
+
+
+    btn.onclick = function () {
+        if (user.innerText == '您还没有登录') {
+
+            alert('您还没有登录')
+        } else {
+            var fd = new FormData();
+            fd.append('MyFile', bookcover.files[0]);
+
+            fd.append('sb', JSON.stringify({
+                bookname: bookname.value,
+                bookjianjie: bookjianjie.value,
+                bookzuoze: user.innerText
+            }))
+
+            if (bookname.value == '' || bookjianjie.value == '') {
+                alert('内容不能为空')
+            } else {
+                let xml = new XMLHttpRequest();
+                xml.open('post', '/up');
+                xml.send(fd);
+                xml.onreadystatechange = function () {
+                    if (xml.readyState == 4 && xml.status == 200) {
+                        console.log(xml.responseText);
+                        // alert(xml.responseText);
+                        Fun();
+                        // location.href = 'http://192.168.122.81:8080/';
+                    }
+                }
+            }
+            bookname.value = '';
+            bookjianjie.value = '';
+            bookcover.value = '';
+            box.innerHTML = '';
+        }
+    }
+
+    tuicu.onclick = function () {
+        fetch('/tuicu').then(res => res.json()).then(data => {
+            console.log(data);
+            alert(data);
+            Fun();
+
+        })
+    }
+
+
+</script>
+
+</html>

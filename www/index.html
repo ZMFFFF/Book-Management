@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #header {
+            z-index: 9;
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            /* border: 1px solid red; */
+            box-shadow: 0 0 3px 1px #999;
+            background-color: #fff;
+            display: flex;
+            flex-direction: row-reverse;
+        }
+
+        #header a {
+            margin: 0 30px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        #header a:hover {
+            color: orangered;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .content {
+            /* height: 272px; */
+            /* border: 1px solid red; */
+            display: flex;
+            display: inline-block;
+            margin-bottom: 5px;
+            margin: 0 15px 30px 25px;
+            box-shadow: 0 0 4px 2px #999;
+            overflow: hidden;
+        }
+
+        .content div {
+            padding: 0 5px;
+        }
+
+        #search {
+            position: absolute;
+            left: 300px;
+            top: 80px;
+            width: 50%;
+            height: 45px;
+            /* border: 1px solid #000; */
+            box-shadow: 0 0 3px 1px #999;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-size: 18px;
+        }
+
+        #box {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        <a href="./user.html">个人中心</a>
+        <a href="./reguser.html">注册</a>
+        <a href="./login.html">登录</a>
+    </div>
+    <h1>首页</h1>
+    <input type="search" name="search" id="search" placeholder="搜索">
+    <div id="box">
+
+    </div>
+</body>
+<script>
+    function Fun() {
+        box.innerHTML = '';
+        fetch('/index').then(res => res.json()).then(data => {
+            console.log(data);
+            for (var i = 0; i < data.length; i++) {
+                box.innerHTML += `
+                <div class="content">
+                <img src=${data[i].bookcover} alt="" class="bookcover">
+                <div>
+                    <div class="bookname">${data[i].bookname}</div>
+                <div class="bookjianjie">${data[i].bookjianjie}</div>
+                <div class="bookzuoze">${data[i].bookzuoze}</div>
+                </div>
+                
+            </div>
+            `;
+            }
+        })
+    }
+    Fun()
+
+
+    // 搜索
+    search.oninput = function () {
+        if (search.value == '') {
+            Fun();
+        } else {
+            fetch(`/search?value=${search.value}`).then(res => res.json()).then(data => {
+                // console.log(data);
+                box.innerHTML = '';
+                for (var i = 0; i < data.length; i++) {
+                    console.log(data[i]);
+                    box.innerHTML += `
+                <div class="content">
+                <img src=${data[i].bookcover} alt="" class="bookcover">
+                <div>
+                    <div class="bookname">${data[i].bookname}</div>
+                <div class="bookjianjie">${data[i].bookjianjie}</div>
+                <div class="bookzuoze">${data[i].bookzuoze}</div>
+                </div>
+                
+            </div>
+            `;
+                }
+
+
+            })
+        }
+    }
+</script>
+
+</html>
